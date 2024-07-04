@@ -19,7 +19,7 @@ CLASSIFIERS = [
     "Operating System :: POSIX :: Linux",
 ]
 
-REQUIRES = ["llama-index-core==0.10.21",
+REQUIRES = ["llama-index-core==0.10.24",
             "pyyaml",
             "pandas==2.2.0",
             "numpy==1.26.3",
