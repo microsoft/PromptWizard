@@ -396,3 +396,22 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Usual venv directory
+venv/
+
+# pip generated files
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# downloaded training data
+demos/scenarios/data/
+
+# generated training data
+demos/scenarios/train_synthetic.jsonl
+
+# .env configuration files
+**/.env
+
