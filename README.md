@@ -128,7 +128,7 @@ There are three main ways to use PromptWizard:
 - Both the train and test set follow the same format
 - Every sample in the ```.jsonl``` should have 2 fields :
   1) ```question``` : It should contain the complete question that is to asked to the LLM
-  2) ```answer``` : It should contain the ground truth answer which can be verbose or consize
+  2) ```answer``` : It should contain the ground truth answer which can be verbose or concise
 
 
 ### Run on Custom Dataset
@@ -177,10 +177,10 @@ NOTE : Refer to [demos](demos) folder for examples of folders for four datasets.
       - ```generate_synthetic_examples``` is a global hyperparameter which can be used when there are no training samples and we want to generate synthetic data for training 
       - ```use_examples``` is a global hyperparameter which can be used to optimize prompts using training data 
 3) Create a dataset specific class which inherits ```class DatasetSpecificProcessing``` similar to ```GSM8k(DatasetSpecificProcessing)``` in [demo.ipynb](demos/gsm8k/demo.ipynb) and define the following functions in it
-      1) In ```def extract_answer_from_output()``` : This is a dataset specific function, given the ```answer``` from the dataset it should extract and return  a consize form of the answer. Note that based on the dataset it can also simply return the ```answer``` as it is like in case of SVAMP and AQUARAT datasets
-      2) ```def extract_final_answer()``` : This is a LLM output specific function, given the verbose answer from the LLM it should extract and return the consize final answer
+      1) In ```def extract_answer_from_output()``` : This is a dataset specific function, given the ```answer``` from the dataset it should extract and return  a concise form of the answer. Note that based on the dataset it can also simply return the ```answer``` as it is like in case of SVAMP and AQUARAT datasets
+      2) ```def extract_final_answer()``` : This is a LLM output specific function, given the verbose answer from the LLM it should extract and return the concise final answer
       3) Define ```def access_answer()``` : This function takes an input the LLM output, then does the following:
-         - Extracts the consize answer using ```def extract_final_answer()``` from the LLM output as defined above
+         - Extracts the concise answer using ```def extract_final_answer()``` from the LLM output as defined above
          - Evaluates the extracted answer with the ground truth and retuns
             - Extracted answer from LLM output
             - Boolean value indicating if answer is correct or not
