@@ -1,7 +1,7 @@
 from os.path import dirname, join
 import pickle
 import time
-from typing import Any
+from typing import Any, Tuple
 
 from ..common.base_classes import SetupConfig
 from ..common.constants.log_strings import CommonLogsStr
@@ -11,7 +11,6 @@ from ..paramlogger import ParamLogger
 from ..promptopt.constants import PromptOptimizationLiterals
 from ..promptopt.techniques.common_logic import DatasetSpecificProcessing
 from ..promptopt.utils import get_promptopt_class
-
 
 class GluePromptOpt:
     """
@@ -105,7 +104,7 @@ class GluePromptOpt:
         self.prompt_opt = prompt_opt_cls(training_dataset, base_path, self.setup_config,
                                          self.prompt_pool, self.data_processor, self.logger)
 
-    def get_best_prompt(self,use_examples=False,run_without_train_examples=False,generate_synthetic_examples=False) -> (str, Any):
+    def get_best_prompt(self,use_examples=False,run_without_train_examples=False,generate_synthetic_examples=False) -> Tuple[str, Any]:
         """
         Call get_best_prompt() method of class PromptOptimizer & return its value.
         :return: (best_prompt, expert_profile)
@@ -153,7 +152,7 @@ class GluePromptOpt:
         return total_correct / total_count
 
     @iolog.log_io_params
-    def predict_and_access(self, question: str, gt_answer: str) -> (bool, str, str):
+    def predict_and_access(self, question: str, gt_answer: str) -> Tuple[bool, str, str]:
         """
         For the given input question, get answer to it from LLM, using the BEST_PROMPT & EXPERT_PROFILE
         computes earlier.
