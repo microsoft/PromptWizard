@@ -5,7 +5,7 @@ from llama_index.core.llms import LLM
 from tenacity import retry, stop_after_attempt, wait_fixed, wait_random
 from ..base_classes import LLMConfig
 from ..constants.str_literals import InstallLibs, OAILiterals, \
-    OAILiterals, LLMLiterals, LLMOutputTypes
+    LLMLiterals, LLMOutputTypes
 from .llm_helper import get_token_counter
 from ..exceptions import GlueLLMException
 from ..utils.runtime_tasks import install_lib_if_missing
