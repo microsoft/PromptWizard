@@ -143,7 +143,7 @@ class GluePromptOpt:
       
             total_correct += answer[self.EvalLiterals.IS_CORRECT]
             total_count += 1
-            result = {"accuracy": f"{total_correct}/{total_count} : {total_correct/total_count}%",
+            result = {"accuracy": f"{total_correct}/{total_count} : {total_correct/total_count*100.0}%",
                       "predicted": answer[self.EvalLiterals.PREDICTED_ANS],
                       "actual": json_obj[DatasetSpecificProcessing.FINAL_ANSWER_LITERAL]}
             self.iolog.append_dict_to_chained_logs(result)
