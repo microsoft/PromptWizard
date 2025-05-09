@@ -282,7 +282,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
         :return: List of top `top_n` prompts.
         """
         sorted_prompts = sorted(prompt_score_list, key=lambda x: [x[self.GetPromptScoreIndex.SCORE],
-                                                                  len(x[self.GetPromptScoreIndex.PROMPT_STR])],
+                                                                  -len(x[self.GetPromptScoreIndex.PROMPT_STR])],
                                 reverse=True)
         sorted_top_n_prompts = sorted_prompts[:top_n]
         self.logger.debug(f"Sorted top n prompts:  {sorted_top_n_prompts}")
@@ -530,7 +530,7 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
                     break
 
             if len(examples) < params.few_shot_count:
-                examples = random.sample(self.dataset, params.few_shot_count - len(examples))
+                examples += random.sample(self.dataset, params.few_shot_count - len(examples))
 
             # Refine task description and examples iteratively
             print("\nRefining Task description and Examples iteratively....")
