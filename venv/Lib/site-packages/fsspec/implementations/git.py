@@ -55,8 +55,6 @@ class GitFileSystem(AbstractFileSystem):
         tree = comm.tree
         for part in parts:
             if part and isinstance(tree, pygit2.Tree):
-                if part not in tree:
-                    raise FileNotFoundError(path)
                 tree = tree[part]
         return tree
 
@@ -71,32 +69,46 @@ class GitFileSystem(AbstractFileSystem):
             out["ref"], path = path.split("@", 1)
         return out
 
-    @staticmethod
-    def _object_to_info(obj, path=None):
-        # obj.name and obj.filemode are None for the root tree!
-        is_dir = isinstance(obj, pygit2.Tree)
-        return {
-            "type": "directory" if is_dir else "file",
-            "name": (
-                "/".join([path, obj.name or ""]).lstrip("/") if path else obj.name
-            ),
-            "hex": str(obj.id),
-            "mode": "100644" if obj.filemode is None else f"{obj.filemode:o}",
-            "size": 0 if is_dir else obj.size,
-        }
-
     def ls(self, path, detail=True, ref=None, **kwargs):
-        tree = self._path_to_object(self._strip_protocol(path), ref)
-        return [
-            GitFileSystem._object_to_info(obj, path)
-            if detail
-            else GitFileSystem._object_to_info(obj, path)["name"]
-            for obj in (tree if isinstance(tree, pygit2.Tree) else [tree])
-        ]
-
-    def info(self, path, ref=None, **kwargs):
-        tree = self._path_to_object(self._strip_protocol(path), ref)
-        return GitFileSystem._object_to_info(tree, path)
+        path = self._strip_protocol(path)
+        tree = self._path_to_object(path, ref)
+        if isinstance(tree, pygit2.Tree):
+            out = []
+            for obj in tree:
+                if isinstance(obj, pygit2.Tree):
+                    out.append(
+                        {
+                            "type": "directory",
+                            "name": "/".join([path, obj.name]).lstrip("/"),
+                            "hex": obj.hex,
+                            "mode": f"{obj.filemode:o}",
+                            "size": 0,
+                        }
+                    )
+                else:
+                    out.append(
+                        {
+                            "type": "file",
+                            "name": "/".join([path, obj.name]).lstrip("/"),
+                            "hex": obj.hex,
+                            "mode": f"{obj.filemode:o}",
+                            "size": obj.size,
+                        }
+                    )
+        else:
+            obj = tree
+            out = [
+                {
+                    "type": "file",
+                    "name": obj.name,
+                    "hex": obj.hex,
+                    "mode": f"{obj.filemode:o}",
+                    "size": obj.size,
+                }
+            ]
+        if detail:
+            return out
+        return [o["name"] for o in out]
 
     def ukey(self, path, ref=None):
         return self.info(path, ref=ref)["hex"]

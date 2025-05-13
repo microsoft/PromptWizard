@@ -4,11 +4,9 @@ from hashlib import md5
 import pytest
 
 from fsspec.implementations.local import LocalFileSystem
-from fsspec.tests.abstract.copy import AbstractCopyTests  # noqa: F401
-from fsspec.tests.abstract.get import AbstractGetTests  # noqa: F401
-from fsspec.tests.abstract.open import AbstractOpenTests  # noqa: F401
-from fsspec.tests.abstract.pipe import AbstractPipeTests  # noqa: F401
-from fsspec.tests.abstract.put import AbstractPutTests  # noqa: F401
+from fsspec.tests.abstract.copy import AbstractCopyTests  # noqa
+from fsspec.tests.abstract.get import AbstractGetTests  # noqa
+from fsspec.tests.abstract.put import AbstractPutTests  # noqa
 
 
 class BaseAbstractFixtures:
@@ -227,7 +225,7 @@ class BaseAbstractFixtures:
         for i in range(10):
             hashed_i = md5(str(i).encode("utf-8")).hexdigest()
             path = some_join(source, f"{hashed_i}.txt")
-            some_fs.pipe(path=path, value=f"{i}".encode())
+            some_fs.pipe(path=path, value=f"{i}".encode("utf-8"))
         return source
 
 

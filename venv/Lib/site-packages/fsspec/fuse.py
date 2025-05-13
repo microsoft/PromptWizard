@@ -31,8 +31,8 @@ class FUSEr(Operations):
         path = "".join([self.root, path.lstrip("/")]).rstrip("/")
         try:
             info = self.fs.info(path)
-        except FileNotFoundError as exc:
-            raise FuseOSError(ENOENT) from exc
+        except FileNotFoundError:
+            raise FuseOSError(ENOENT)
 
         data = {"st_uid": info.get("uid", 1000), "st_gid": info.get("gid", 1000)}
         perm = info.get("mode", 0o777)
@@ -119,8 +119,8 @@ class FUSEr(Operations):
         fn = "".join([self.root, path.lstrip("/")])
         try:
             self.fs.rm(fn, False)
-        except (OSError, FileNotFoundError) as exc:
-            raise FuseOSError(EIO) from exc
+        except (OSError, FileNotFoundError):
+            raise FuseOSError(EIO)
 
     def release(self, path, fh):
         try:
