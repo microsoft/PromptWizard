@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "netlify-build": "next build"
+    "heroku-postbuild": "next build && next export"
   },
   "dependencies": {
     "react": "^19.0.0",
