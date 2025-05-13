@@ -1,0 +1,3 @@
+[console_scripts]
+llamaindex-legacy-cli=llama_index.legacy.command_line.command_line:main
+

@@ -1,0 +1,35 @@
+sequenceDiagram
+    participant User
+    participant UI as PromptWizard UI
+    participant API as Backend API
+    participant LLM as Language Model (Gemini/GPT)
+    
+    Note over User,LLM: Initial Setup Phase
+    User->>UI: Enter task description
+    User->>UI: Enter/select base instruction
+    User->>UI: Set mutation rounds (N)
+    User->>UI: Set refinement steps (M)
+    User->>UI: Click "Optimize Prompt"
+    
+    UI->>API: Send optimization request
+    
+    Note over API,LLM: Optimization Process Begins
+    
+    API->>API: Initialize parameters
+    
+    loop For each mutation round (1 to N)
+        Note over API,LLM: Mutation Phase
+        API->>LLM: Send current prompt for mutation
+        LLM->>API: Return mutated prompt
+        
+        Note over API,LLM: Refinement Phase
+        loop For each refinement step (1 to M)
+            API->>LLM: Send mutated prompt for refinement
+            LLM->>API: Return refined prompt
+        end
+        
+        API->>API: Update current prompt with refined version
+    end
+    
+    API->>UI: Return final optimized prompt
+    UI->>User: Display optimized prompt

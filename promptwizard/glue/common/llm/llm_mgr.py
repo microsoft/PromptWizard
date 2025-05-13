@@ -1,69 +1,80 @@
+import os
+import google.generativeai as genai
 from typing import Dict
 from llama_index.core.callbacks import CallbackManager, TokenCountingHandler
 from llama_index.core.llms import ChatMessage
 from llama_index.core.llms import LLM
-from tenacity import retry, stop_after_attempt, wait_fixed, wait_random
 from ..base_classes import LLMConfig
-from ..constants.str_literals import InstallLibs, OAILiterals, \
-    OAILiterals, LLMLiterals, LLMOutputTypes
-from .llm_helper import get_token_counter
+from ..constants.str_literals import InstallLibs, OAILiterals, LLMLiterals, LLMOutputTypes
 from ..exceptions import GlueLLMException
-from ..utils.runtime_tasks import install_lib_if_missing
+from ..utils.runtime_tasks import install_lib_if_missing, str_to_class
 from ..utils.logging import get_glue_logger
-from ..utils.runtime_tasks import str_to_class
-import os
+
 logger = get_glue_logger(__name__)
 
-def call_api(messages):
-
+def call_openai_api(messages):
     from openai import OpenAI
     from azure.identity import get_bearer_token_provider, AzureCliCredential
     from openai import AzureOpenAI
 
-    if os.environ['USE_OPENAI_API_KEY'] == "True":
+    if os.environ.get('USE_OPENAI_API_KEY') == "True":
         client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-
         response = client.chat.completions.create(
-        model=os.environ["OPENAI_MODEL_NAME"],
-        messages=messages,
-        temperature=0.0,
+            model=os.environ["OPENAI_MODEL_NAME"],
+            messages=messages,
+            temperature=0.0,
         )
     else:
         token_provider = get_bearer_token_provider(
-                AzureCliCredential(), "https://cognitiveservices.azure.com/.default"
-            )
+            AzureCliCredential(), "https://cognitiveservices.azure.com/.default"
+        )
         client = AzureOpenAI(
             api_version=os.environ["OPENAI_API_VERSION"],
             azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
             azure_ad_token_provider=token_provider
-            )
+        )
         response = client.chat.completions.create(
             model=os.environ["AZURE_OPENAI_DEPLOYMENT_NAME"],
             messages=messages,
             temperature=0.0,
         )
 
-    prediction = response.choices[0].message.content
-    return prediction
+    return response.choices[0].message.content
 
+def call_gemini_api(messages):
+    try:
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            raise GlueLLMException("GOOGLE_API_KEY environment variable not set")
+            
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        chat = model.start_chat(history=[])
+        
+        # Convert messages to Gemini format and maintain conversation
+        for message in messages:
+            if message["role"] in ["system", "user", "assistant"]:
+                response = chat.send_message(message["content"])
+        
+        return response.text
+    except Exception as e:
+        logger.error(f"Error in Gemini API call: {str(e)}")
+        raise GlueLLMException("Failed to get response from Gemini", e)
 
 class LLMMgr:
     @staticmethod
     def chat_completion(messages: Dict):
-        llm_handle = os.environ.get("MODEL_TYPE", "AzureOpenAI")
+        llm_handle = os.getenv("MODEL_TYPE", "AzureOpenAI")
         try:
-            if(llm_handle == "AzureOpenAI"): 
-                # Code to for calling LLMs
-                return call_api(messages)
-            elif(llm_handle == "LLamaAML"):
-                # Code to for calling SLMs
-                return 0
+            if llm_handle == "AzureOpenAI":
+                return call_openai_api(messages)
+            elif llm_handle == "Gemini":
+                return call_gemini_api(messages)
+            else:
+                raise GlueLLMException(f"Unsupported model type: {llm_handle}")
         except Exception as e:
-            print(e)
+            logger.error(f"Error in chat completion: {str(e)}")
             return "Sorry, I am not able to understand your query. Please try again."
-            # raise GlueLLMException(f"Exception when calling {llm_handle.__class__.__name__} "
-            #                        f"LLM in chat mode, with message {messages} ", e)
-        
 
     @staticmethod
     def get_all_model_ids_of_type(llm_config: LLMConfig, llm_output_type: str):
@@ -88,25 +99,25 @@ class LLMMgr:
         which can be used as handle to that LLM
         """
         llm_pool = {}
-        az_llm_config = llm_config.azure_open_ai
-
-        if az_llm_config:
+        
+        # Handle Azure OpenAI configuration
+        if llm_config.azure_open_ai:
             install_lib_if_missing(InstallLibs.LLAMA_LLM_AZ_OAI)
             install_lib_if_missing(InstallLibs.LLAMA_EMB_AZ_OAI)
             install_lib_if_missing(InstallLibs.LLAMA_MM_LLM_AZ_OAI)
             install_lib_if_missing(InstallLibs.TIKTOKEN)
 
             import tiktoken
-            # from llama_index.llms.azure_openai import AzureOpenAI
             from openai import AzureOpenAI
             from llama_index.embeddings.azure_openai import AzureOpenAIEmbedding
             from llama_index.multi_modal_llms.azure_openai import AzureOpenAIMultiModal
 
             az_token_provider = None
-            # if az_llm_config.use_azure_ad:
             from azure.identity import get_bearer_token_provider, AzureCliCredential
-            az_token_provider = get_bearer_token_provider(AzureCliCredential(),
-                                                        "https://cognitiveservices.azure.com/.default")
+            az_token_provider = get_bearer_token_provider(
+                AzureCliCredential(),
+                "https://cognitiveservices.azure.com/.default"
+            )
 
             for azure_oai_model in az_llm_config.azure_oai_models:
                 callback_mgr = None
@@ -158,22 +169,61 @@ class LLMMgr:
                                               max_new_tokens=4096
                                               )
 
+        # Handle Gemini configuration
+        if hasattr(llm_config, 'gemini') and llm_config.gemini:
+            try:
+                install_lib_if_missing("google-generativeai>=0.3.0")
+                from llama_index.llms.gemini import Gemini
+                from llama_index.multi_modal_llms.gemini import GeminiMultiModal
+
+                api_key = os.getenv("GOOGLE_API_KEY")
+                if not api_key:
+                    raise GlueLLMException("GOOGLE_API_KEY environment variable not set")
+
+                # Configure Gemini
+                gemini_config = llm_config.gemini
+                for gemini_model in gemini_config.models:
+                    if gemini_model.model_type == LLMOutputTypes.CHAT:
+                        llm_pool[gemini_model.unique_model_id] = Gemini(
+                            api_key=api_key,
+                            model_name=gemini_model.model_name,
+                            temperature=gemini_config.temperature or 0.0,
+                            max_tokens=gemini_config.max_tokens,
+                        )
+                    elif gemini_model.model_type == LLMOutputTypes.MULTI_MODAL:
+                        llm_pool[gemini_model.unique_model_id] = GeminiMultiModal(
+                            api_key=api_key,
+                            model_name=gemini_model.model_name,
+                            temperature=gemini_config.temperature or 0.0,
+                            max_tokens=gemini_config.max_tokens,
+                        )
+            except Exception as e:
+                logger.error(f"Failed to initialize Gemini models: {str(e)}")
+                raise GlueLLMException("Failed to initialize Gemini models", e)
+
+        # Handle custom models
         if llm_config.custom_models:
             for custom_model in llm_config.custom_models:
-                # try:
-                custom_llm_class = str_to_class(custom_model.class_name, None, custom_model.path_to_py_file)
-
-                callback_mgr = None
-                if custom_model.track_tokens:
-                    # If we need to count number of tokens used in LLM calls
-                    token_counter = TokenCountingHandler(
-                        tokenizer=custom_llm_class.get_tokenizer()
+                try:
+                    custom_llm_class = str_to_class(
+                        custom_model.class_name, 
+                        None, 
+                        custom_model.path_to_py_file
+                    )
+                    callback_mgr = None
+                    if custom_model.track_tokens:
+                        token_counter = TokenCountingHandler(
+                            tokenizer=custom_llm_class.get_tokenizer()
                         )
-                    callback_mgr = CallbackManager([token_counter])
-                    token_counter.reset_counts()
-                llm_pool[custom_model.unique_model_id] = custom_llm_class(callback_manager=callback_mgr)
-                # except Exception as e:
-                    # raise GlueLLMException(f"Custom model {custom_model.unique_model_id} not loaded.", e)
+                        callback_mgr = CallbackManager([token_counter])
+                        token_counter.reset_counts()
+                    llm_pool[custom_model.unique_model_id] = custom_llm_class(
+                        callback_manager=callback_mgr
+                    )
+                except Exception as e:
+                    logger.error(f"Failed to load custom model {custom_model.unique_model_id}: {str(e)}")
+                    raise GlueLLMException(f"Custom model {custom_model.unique_model_id} not loaded.", e)
+
         return llm_pool
 
     @staticmethod
