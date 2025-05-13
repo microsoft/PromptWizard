@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "netlify-build": "next build && next export"
+    "netlify-build": "next build"
   },
   "dependencies": {
     "react": "^19.0.0",
