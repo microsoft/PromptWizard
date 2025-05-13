@@ -70,12 +70,7 @@ The `vercel.json` file in the repository root configures the deployment:
       "src": "/(.*)",
       "dest": "ui/$1"
     }
-  ],
-  "env": {
-    "GOOGLE_API_KEY": "@google_api_key",
-    "OPENAI_API_KEY": "@openai_api_key",
-    "NEXT_PUBLIC_API_URL": "/api"
-  }
+  ]
 }
 ```
 
