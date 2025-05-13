@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
         source: '/api/:path*',
         destination: process.env.NODE_ENV === 'development'
           ? 'http://localhost:5000/api/:path*'
-          : 'https://<render-api-url>/api/:path*',
+          : 'https://promptwizard.onrender.com/api/:path*',
       },
     ];
   },
