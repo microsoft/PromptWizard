@@ -6,6 +6,20 @@ import PromptForm from '../components/PromptForm';
 
 export default function Home() {
   const [optimizedPrompt, setOptimizedPrompt] = useState('');
+  const [copySuccess, setCopySuccess] = useState(false);
+
+  const handleCopyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(optimizedPrompt);
+      setCopySuccess(true);
+      setTimeout(() => {
+        setCopySuccess(false);
+      }, 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+      setCopySuccess(false);
+    }
+  };
 
   return (
     <div className="min-h-screen p-8">
@@ -15,7 +29,7 @@ export default function Home() {
 
       <main className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <PromptForm setOptimizedPrompt={setOptimizedPrompt} />
+          <PromptForm setOptimizedPrompt={setOptimizedPrompt} optimizedPrompt={optimizedPrompt} />
         </div>
 
         <div className="mt-8 p-4 border rounded-lg bg-gray-50">
@@ -28,6 +42,12 @@ export default function Home() {
                     Mock Response (No API Key)
                   </div>
                 )}
+                <button
+                  onClick={handleCopyToClipboard}
+                  className={`bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2 ${copySuccess ? 'bg-green-700' : ''}`}
+                >
+                  {copySuccess ? 'Copied!' : 'Copy to Clipboard'}
+                </button>
                 <button
                   onClick={() => {
                     // Create a blob with the optimized prompt

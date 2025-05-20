@@ -10,7 +10,7 @@ import MultimodalSupport from './MultimodalSupport';
 import SessionManagement from './SessionManagement';
 import TabContainer from './TabContainer';
 
-const PromptForm = ({ setOptimizedPrompt }) => {
+const PromptForm = ({ setOptimizedPrompt, optimizedPrompt }) => {
   const [formData, setFormData] = useState({
     taskDescription: '',
     baseInstruction: '',
