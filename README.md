@@ -25,7 +25,7 @@
 
 PromptWizard is a discrete prompt optimization framework that employs a self-evolving mechanism where the LLM generates, critiques, and refines its own prompts and examples, continuously improving through iterative feedback and synthesis. This self-adaptive approach ensures holistic optimization by evolving both the instructions and in-context learning examples for better task performance.
 
-Three key components of PromptWizard are te following :
+Three key components of PromptWizard are the following :
 
 - Feedback-driven Refinement: LLM generates, critiques, and refines its own prompts and examples, continuously improving through iterative feedback and synthesis​
 - Critique and Synthesize diverse examples: Generates synthetic examples that are robust, diverse and task-aware. Also it optimizes both prompt and examples in tandem​
