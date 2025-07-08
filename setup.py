@@ -32,7 +32,7 @@ INSTALL_REQUIRES = [
     "pyyaml~=6.0.1",
     "pyarrow==15.0.2",
     "llama-index==0.11.10",
-    "llama-index-core==0.11.10",
+    "llama-index-core==0.12.41",
     "python-dotenv"
 ]
 QUANLITY_REQUIRES = [
