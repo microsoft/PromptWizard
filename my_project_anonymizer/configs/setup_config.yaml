@@ -1,0 +1,12 @@
+llm:
+  model_type: "Gemini"
+  model_name: "gemini-2.0-flash"
+  temperature: 0.0
+  max_tokens: 1024
+dir_info:
+  base_dir: logs
+  log_dir_name: glue_logs
+experiment_name: my_task
+mode: offline
+description: "My custom prompt optimization task"
+

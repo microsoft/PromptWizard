@@ -1,0 +1,50 @@
+prompt_technique_name: "critique_n_refine"
+unique_model_id: "gemini-2.0-flash"
+mutate_refine_iterations: 3
+mutation_rounds: 3
+refine_instruction: true
+refine_task_eg_iterations: 2
+top_n: 3
+min_correct_count: 2
+max_eval_batches: 5
+
+# Task Description
+task_description: "Optimize a prompt for identifying and returning coordinates of sensitive data in images for anonymization purposes"
+
+# Initial base instruction
+base_instruction: |
+  Please provide the coordinates for anonymizing any and all sensitive data (such as names, phone numbers, addresses, signatures, bank account details, faces, etc.) in the provided images.
+  Return the coordinates of rectangles that cover all potential sensitive data in JSON format, structured as follows:
+  {
+      "1st_image_name": {
+          "field1_name": [[x1, y1], [x2, y2]],
+          "field2_name": [[x3, y3], [x4, y4]],
+          ...
+      }
+  }
+  Where:
+  - "field1_name", "field2_name" are descriptive names for the sensitive data fields
+  - [x1, y1] is the top-left coordinate of the rectangle
+  - [x2, y2] is the bottom-right coordinate of the rectangle
+  Ensure you identify ALL sensitive information, including patient data, medical info, and personal identifiers.
+  ONLY return the JSON structure with no extra text.
+
+# Answer format specification
+answer_format: "JSON format containing image names as keys and nested objects with field names and coordinate pairs"
+
+# Evaluation criteria
+evaluation_criteria:
+  - "Completeness in identifying all types of sensitive data"
+  - "Accuracy of JSON structure"
+  - "Clarity of field naming"
+  - "Precision of coordinate specifications"
+  - "Adherence to JSON-only response format"
+
+# Optional features
+use_examples: false
+generate_synthetic_examples: false
+run_without_train_examples: true
+generate_expert_identity: true
+generate_intent_keywords: true
+
+

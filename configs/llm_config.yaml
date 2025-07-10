@@ -1,0 +1,28 @@
+azure_open_ai:
+  use_azure_ad: true
+  api_key: ""
+  azure_endpoint: ""
+  api_version: ""
+  models:
+    - unique_model_id: "gpt-4"
+      model_name_in_azure: "gpt-4"
+      deployment_name_in_azure: "gpt-4"
+      model_type: "chat"
+
+gemini:
+  api_key: "${GOOGLE_API_KEY}"
+  temperature: 0.0
+  max_tokens: 1024
+  models:
+    - unique_model_id: "gemini-flash"
+      model_name: "gemini-2.0-flash"
+      model_type: "chat"
+    - unique_model_id: "gemini-flash-vision"
+      model_name: "gemini-2.0-flash-vision"
+      model_type: "multi_modal"
+
+custom_models:
+  - unique_model_id: "custom-model-1"
+    class_name: "CustomLLMClass"
+    path_to_py_file: "path/to/custom_llm.py"
+    track_tokens: true

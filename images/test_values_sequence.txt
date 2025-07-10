@@ -1,0 +1,35 @@
+sequenceDiagram
+    title Test Values Feature Flow
+    
+    actor User
+    participant UI as PromptWizard UI
+    participant API as Backend API
+    participant LLM as Gemini API
+    
+    User->>UI: Clicks "Test Values" button
+    
+    Note over UI: Form is populated with<br/>pre-configured values
+    
+    UI->>UI: Fill task description with<br/>image generation prompt
+    UI->>UI: Fill base instruction with<br/>Ghibli-style aesthetics
+    UI->>UI: Set model to Gemini
+    UI->>UI: Configure optimization parameters
+    
+    User->>UI: Reviews pre-filled values
+    User->>UI: Enters API key
+    User->>UI: Clicks "Optimize Prompt" button
+    
+    UI->>API: Send optimization request
+    
+    Note over API: Process request and<br/>prepare for optimization
+    
+    API->>LLM: Send request to Gemini API
+    
+    Note over LLM: Generate variations<br/>Perform mutation rounds<br/>Refine prompt
+    
+    LLM->>API: Return optimized prompt
+    API->>UI: Return optimization results
+    
+    UI->>User: Display optimized prompt<br/>and performance metrics
+    
+    Note over User: Can export or<br/>copy optimized prompt

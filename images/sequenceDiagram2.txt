@@ -1,0 +1,69 @@
+sequenceDiagram
+    title PromptWizard Test Values Feature Flow
+    
+    actor User
+    participant UI as PromptWizard UI
+    participant API as Backend API
+    participant LLM as Gemini API
+    
+    User->>+UI: Clicks "Test Values" button
+    
+    rect rgb(240, 240, 255)
+        Note over UI: Form Auto-Population Phase
+        UI->>UI: Fill task description with<br/>image generation prompt
+        UI->>UI: Fill base instruction with<br/>Ghibli-style aesthetics
+        UI->>UI: Set model to Gemini
+        UI->>UI: Set refine steps to 2
+        UI->>UI: Configure optimization parameters
+        UI->>UI: Set evaluation criteria
+    end
+    
+    UI-->>-User: Display populated form
+    
+    User->>UI: Reviews pre-filled values
+    User->>+UI: Enters API key
+    UI->>UI: Validate API key
+    UI-->>-User: Show validation result
+    
+    User->>+UI: Clicks "Optimize Prompt" button
+    
+    rect rgb(255, 240, 240)
+        Note over UI,API: Request Processing Phase
+        UI->>+API: Send optimization request with<br/>pre-filled values
+        API->>API: Parse and validate request
+        API->>API: Prepare optimization parameters
+    end
+    
+    rect rgb(240, 255, 240)
+        Note over API,LLM: Optimization Phase
+        API->>+LLM: Send request to Gemini API
+        LLM->>LLM: Generate prompt variations
+        LLM->>LLM: Perform mutation rounds
+        LLM->>LLM: Evaluate variations
+        LLM->>LLM: Refine best prompts
+        LLM-->>-API: Return optimized prompt
+    end
+    
+    rect rgb(255, 255, 240)
+        Note over API,UI: Result Processing Phase
+        API->>API: Process optimization results
+        API->>API: Calculate performance metrics
+        API->>-UI: Return optimization results
+    end
+    
+    UI->>UI: Format results for display
+    UI-->>-User: Display optimized prompt<br/>and performance metrics
+    
+    rect rgb(240, 255, 255)
+        Note over User,UI: Post-Optimization Actions
+        User->>+UI: Click "Copy to Clipboard"
+        UI-->>-User: Prompt copied to clipboard
+        
+        alt Export Configuration
+            User->>+UI: Click "Export Config"
+            UI->>UI: Generate YAML configuration
+            UI-->>-User: Download configuration file
+        end
+    end
+    
+    Note over User: Ready to use optimized prompt<br/>in actual applications

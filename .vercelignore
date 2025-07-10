@@ -1,0 +1,46 @@
+# Ignore files not needed for Vercel deployment
+
+# Python virtual environments
+venv/
+env/
+.env/
+
+# Development files
+.git/
+.github/
+.gitignore
+.vscode/
+.idea/
+
+# Large data files
+demos/
+data/
+
+# Documentation
+docs/
+*.md
+!README.md
+!VERCEL_DEPLOYMENT.md
+
+# Test files
+**/tests/
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# Build artifacts
+**/dist/
+**/build/
+**/*.egg-info/
+
+# Node.js
+**/node_modules/
+**/.next/
+**/out/
+**/.cache/
+
+# Temporary files
+**/tmp/
+**/temp/
+**/.DS_Store

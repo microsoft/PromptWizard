@@ -1,0 +1,14 @@
+flask==2.3.3
+flask-cors==4.0.0
+python-dotenv==1.0.0
+pyyaml==6.0.1
+google-generativeai==0.3.1
+requests==2.31.0
+openai>=1.14.0
+tiktoken==0.5.2
+nltk
+datasets==2.16.0
+pyarrow==15.0.2
+llama-index==0.11.10
+llama-index-core==0.11.10
+gunicorn==21.2.0
