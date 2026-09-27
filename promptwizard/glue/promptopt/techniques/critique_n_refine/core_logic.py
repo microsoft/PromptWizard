@@ -247,12 +247,17 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
         :param dataset_subset: List of examples with question and ground truth.
         :return: List of examples that were wrongly classified.
         """
-        # Find all matches of the pattern in the text
-        answer_matches = re.findall(DatasetSpecificProcessing.ANSWER_DELIMITER_PATTERN, generated_text)
- 
-        # answer_matches = [self.chat_completion(FINAL_ANSWER_EXTRACTION_PROMPT.format(text=generated_text), "You are an AI assistant. Please follow the users requests.")]
-        answer_matches = [generated_text]
-        # 
+        if len(dataset_subset) == 1:
+            # Single-question extractors may need the complete response.
+            answer_matches = [generated_text]
+        else:
+            # Keep delimiters for dataset-specific answer extraction.
+            answer_pattern = (
+                re.escape(DatasetSpecificProcessing.ANSWER_START)
+                + ".*?"
+                + re.escape(DatasetSpecificProcessing.ANSWER_END)
+            )
+            answer_matches = re.findall(answer_pattern, generated_text, flags=re.DOTALL)
         answers_len, dataset_len = len(answer_matches), len(dataset_subset)
         if answers_len != dataset_len:
             self.logger.info(f"Answers extracted from LLM output={answers_len}, Questions asked to LLM {dataset_len}")
@@ -268,7 +273,8 @@ class CritiqueNRefine(PromptOptimizer, UniversalBaseClass):
             is_correct, _ = self.data_processor.access_answer(answer_matches[i], actual_answer)
             if not is_correct:
                 wrong_examples.append(dataset_subset[i])
-        # 
+        # Questions without a corresponding answer must also count as wrong.
+        wrong_examples.extend(dataset_subset[len(answer_matches) :])
         return wrong_examples
 
     @iolog.log_io_params
